@@ -13,9 +13,15 @@ export default function App() {
   return (
     <NavigationContainer>
       <Tab.Navigator>
-        <Tab.Screen name='Home' component={HomeScreen} />
+        <Tab.Screen name='Home' component={HomeScreen} 
+          options={{
+          tabBarStyle: { display: "none" },
+          }}
+        />
         <Tab.Screen name='Record' component={RecordScreen} />
-        <Tab.Screen name='Rave' component={RaveScreen} />
+        <Tab.Screen name='Rave' component={RaveScreen} 
+
+        />
       </Tab.Navigator>
     </NavigationContainer>
   );

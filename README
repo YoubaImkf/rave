@@ -24,3 +24,6 @@ my-app/
 ## npm :
 npm install  @react-navigation/bottom-tabs
 npm install @expo/vector-icons/Ionicons
+npm install axios
+npx expo install expo-av
+npx expo install expo-file-system
