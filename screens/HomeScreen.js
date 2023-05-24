@@ -1,57 +1,83 @@
 import React, { useState } from "react";
-import {Button, Text, TextInput, ToastAndroid, View, StyleSheet} from 'react-native';
+import {
+  Text,
+  TextInput,
+  ToastAndroid,
+  View,
+  Image,
+  Pressable
+} from "react-native";
 import { ServerService } from "../services/ServerService";
+import { styles } from "../styles/HomeStyle"
 
+const HomeScreen = ({ navigation }) => {
+  const [baseUrl, setBaseUrl] = useState("");
+  const [port, setPort] = useState("");
 
-const HomeScreen = ({navigation}) => {
+  const connection = async () => {
+    try {
+      const isConnected = await ServerService.testConnection(baseUrl, port);
 
-    const [baseUrl, setBaseUrl] = useState('');
-    const [port, setPort] = useState('');
+      if (isConnected) {
+        ToastAndroid.show("Successfully connected", ToastAndroid.SHORT);
+        navigation.navigate("Record");
+      } else {
+        ToastAndroid.show("Connection Failed", ToastAndroid.SHORT);
+      }
+    } catch (error) {
+      ToastAndroid.show(
+        "Error connecting to server:" + error.message,
+        ToastAndroid.SHORT
+      );
+    }
+  };
 
-    const connection = async () => {
-        try {
-          const isConnected = await ServerService.testConnection(baseUrl ,port);
-          
-          if (isConnected) {
-            ToastAndroid.show('Successfully connected', ToastAndroid.SHORT);
-            navigation.navigate('Record');
-          } else {
-            ToastAndroid.show('Connection Failed', ToastAndroid.SHORT);
-          }
-        } catch (error) {
-            ToastAndroid.show('Error connecting to server:' + error.message, ToastAndroid.SHORT);
+  return (
+    <View style={styles.container}>
+      <View style={styles.titleContainer}>
+      <Image
+        style={styles.tinyLogo}
+        source={require('../assets/rave_logo.png')
         }
-      };
-      
+      />
+        <Text style={styles.title}>Connection</Text>
+        <Text style={styles.label}>Welcome to rave</Text>
+      </View>
 
-    return (
-        <View style={{ flex: 1, backgroundColor: '#8BD0FC',}} >
-            <Text>Connection</Text>
-            <TextInput style={styles.input}
-            value={baseUrl} 
+      <View style={styles.form}>
+        <Text style={styles.inputlabel}>Ip adress</Text>
+          <TextInput
+            style={styles.input}
+            value={baseUrl}
             onChangeText={setBaseUrl}
             placeholder="192.168.1.22"
-            />
-            <TextInput style={styles.input}
-            value={port} 
+            placeholderTextColor={"#E0DFE0"}
+          />
+        <View style={styles.separator} />
+        
+
+        <Text style={styles.inputlabel}>Port</Text>
+          <TextInput
+            style={styles.input}
+            value={port}
             onChangeText={setPort}
             placeholder="8000"
-            />
-            <Button
-            title="connection"
-            onPress={connection}
-            />
-        </View>
-    );
-};
+            placeholderTextColor={"#E0DFE0"}
+          />
+        <View style={styles.separator} />
 
-const styles = StyleSheet.create({
-    input: {
-      height: 40,
-      margin: 12,
-      borderWidth: 1,
-      padding: 10,
-    },
-  });
+      </View>
+
+      <Pressable 
+      style={styles.submit} 
+      onPress={connection} 
+      >
+        <Text style={styles.submitTitle}> CONNECT </Text>
+        <Text style={styles.submitlabel}>test connection</Text>
+      </Pressable>
+
+    </View>
+  );
+};
 
 export default HomeScreen;
