@@ -1,90 +1,246 @@
-import React, { useState } from "react";
-import {Text, View, Button, StyleSheet} from 'react-native';
-import { Audio } from 'expo-av';
-import * as FileSystem from 'expo-file-system';
-const RecordScreen = () => {
+import { Text, TouchableOpacity, View, StyleSheet, FlatList, Image} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { FontAwesome } from '@expo/vector-icons';
+import { AudioLogic } from '../utils/AudioLogic';
 
-    // RECORDING PART
-    const [recording, setRecording] = React.useState();
 
-    async function startRecording() {
-        try {
-          console.log('Requesting permissions..');
-          await Audio.requestPermissionsAsync();
-          await Audio.setAudioModeAsync({
-            allowsRecordingIOS: true,
-            playsInSilentModeIOS: true,
-          });
-    
-          console.log('Starting recording..');
-          const { recording } = await Audio.Recording.createAsync( Audio.RecordingOptionsPresets.HIGH_QUALITY
-          );
-          setRecording(recording);
-          console.log('Recording started');
-        } catch (err) {
-          console.error('Failed to start recording', err);
-        }
+
+
+const RecordScreen = ({ navigation }) => {
+  const [recording, setRecording] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [savedAudios, setSavedAudios] = useState([]);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [lastRecordUri, setLastRecordUri] = useState('')
+
+  const handleRecordingToggle = async () => {
+    if (isRecording) {
+      console.log('Pause');
+      await handleStopRecording();
+    } else {
+      console.log('Start');
+      await handleStartRecording();
     }
+  };
 
-    async function stopRecording() {
-        console.log('Stopping recording..');
-        setRecording(undefined);
-        await recording.stopAndUnloadAsync();
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: false,
-        });
+  const handleStartRecording = async () =>{
+    try {
+      const newRecording  = await AudioLogic.startRecording();
+      setRecording(newRecording);
+      setIsRecording(true);
+    } catch(error) {
+      console.error('Failed to start recording 2', error);
+    }
+  };
 
-        const uri = recording.getURI();
-        // Create a file name for the recording
-        const fileName = `recording-${Date.now()}.caf`;
-        const directory = FileSystem.documentDirectory + 'recordings/';
-        // Move the recording to the new directory with the new file name
-        await FileSystem.makeDirectoryAsync(directory, { intermediates: true });
-        await FileSystem.moveAsync({
-          from: uri,
-          to: directory + fileName
-        });
-        // reset state
+  const handleStopRecording = async () => {
+    try {
+      if (recording) {
+        const recordingUri  = await AudioLogic.stopRecording(recording);
+        console.log('Recording stopped. URI:', recordingUri);
         setRecording(null);
-        console.log('Recording stopped and stored at',  directory + fileName);
+        setIsRecording(false);
+        setLastRecordUri(recordingUri);
       }
-    
-    // PLAYING SOUND
-    // const [sound, setSound] = React.useState();
-    
-    // async function playSound() {
-    //     console.log('Loading Sound');
-    //     const { sound } = await Audio.Sound.createAsync( require('./assets/Hello.mp3')
-    //     );
-    //     setSound(sound);
-    
-    //     console.log('Playing Sound');
-    //     await sound.playAsync();
-    //   }
-    
-    //   React.useEffect(() => {
-    //     return sound
-    //       ? () => {
-    //           console.log('Unloading Sound');
-    //           sound.unloadAsync();
-    //         }
-    //       : undefined;
-    //   }, [sound]);
+    } catch(error) {
+      console.error('Failed to stop recording', error);
+    }
+  };
 
+  const saveRecording = async () => {
+    try {
+      const savedRecording  = await AudioLogic.saveAudio(lastRecordUri);
+      console.log('Recording saved', savedRecording );
 
+    } catch(error) {
+      console.error('Failed to save the recording', error);
+    }
+  };
 
-    return (
-        <View>
-            <Text>RecordScreen</Text>
-            <Button
-                title={recording ? 'Stop Recording' : 'Start Recording'}
-                onPress={recording ? stopRecording : startRecording}
-            />
+  const handlePlayAudio = async (recordingUri) => {
+    try {
+      if (isPlaying) {
+        console.log('pause audio ...');
+        await AudioLogic.pauseAudio();
+        setIsPlaying(false);
+      } else {
+        console.log('playing audio ...');
+        await AudioLogic.playAudio(recordingUri);
+        setIsPlaying(true);
+      }
+    } catch (error) {
+      console.error('Failed to play/pause the audio', error);
+    }
+  };
 
-            {/* <Button title="Play Sound" onPress={playSound} /> */}
+  const playSoundBack = async () => {
+    try {
+      if (lastRecordUri != ''){
+        if (isPlaying) {
+          console.log('pause current record ...');
+          await AudioLogic.pauseAudio();
+          setIsPlaying(false);
+        } else {
+          console.log('playing back record ...');
+          await AudioLogic.playAudio(lastRecordUri);
+          setIsPlaying(true);
+        } 
+      }
+      else {
+        console.log('Please start a record before playing back');
+      }
+    } catch (error) {
+      console.error('Failed to play/pause the current audio', error);
+    }
+  };
+  
+  const _retrieveSavedAudios = async () => {
+    try {
+      const audios = await AudioLogic.getSavedAudio();
+      setSavedAudios(audios);
+    } catch(error) {
+      console.error('Failed to retrieve audios', error);
 
-        </View>
-    );
-};
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      AudioLogic.getPermission();
+      _retrieveSavedAudios();
+    });
+
+   return () => {
+    unsubscribe;
+   } ;
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.titleContainer}>
+        <Image
+          style={styles.tinyLogo}
+          source={require('../assets/jsrave_logo.png')}
+        />
+        <Text style={styles.title}>Record</Text>
+        <Text style={styles.label}>Start recording</Text>
+      </View>
+      <View style={styles.audioList}> 
+      <FlatList 
+        data={savedAudios}
+        keyExtractor={(item) => item.fileName}
+        renderItem={({ item }) => (
+          <TouchableOpacity onPress={() => handlePlayAudio(item.uri)}>
+            <Text style={styles.file}>{item.fileName}
+              <View style={styles.separator}></View>
+            </Text>
+
+          </TouchableOpacity>
+        )}
+      />
+      </View>
+      <View style={styles.recordContainer}>
+        <TouchableOpacity style={styles.recordButton} onPress={handleRecordingToggle}>
+          <View style={styles.square}></View>
+        </TouchableOpacity>
+      </View> 
+
+      <View style={styles.recordNav}>
+        <TouchableOpacity style={styles.button} onPress={''}>
+          <Text>Delete</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button} onPress={playSoundBack}>
+          <Text>play</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button} onPress={saveRecording}>
+          <Text>save</Text>
+        </TouchableOpacity>
+
+      </View>
+    </View>
+
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop:40,
+    padding: 30,
+    backgroundColor: "#FCE76C",
+  },
+  tinyLogo:{
+    width: 84,
+    height: 30,
+    alignSelf: 'flex-start',
+    marginBottom: 67,
+  },
+  titleContainer: {
+    marginBottom: 45
+  },
+  title: {
+    fontSize: 47,
+    fontWeight: '900',
+    // fontFamily: 'Montserrat-Bold',
+  },
+  audioList: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    paddingVertical: 20,
+    paddingHorizontal: 10,
+    marginBottom: 40,
+    width: 300,
+    maxHeight: 150,
+
+  },
+  file: {
+    marginBottom: 20,
+  },
+  separator: {
+    width: 270,
+    backgroundColor: '#000000',
+    opacity: 0.5,
+    height: 0.5,
+    marginBottom: 10,
+  },
+  recordContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+
+  },
+  square:{
+    width: 40,
+    height: 40,
+    backgroundColor: '#E71919',
+    borderRadius: 5,
+  },
+  recordButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 100,
+    height: 100,
+    borderRadius: 64,
+    backgroundColor: '#FFFFFF',
+    marginBottom: 35,
+    elevation: 5,
+    shadowColor: '#000000',
+  },
+  recordNav: {
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    backgroundColor: '#FFFFFF',
+    flexDirection: 'row',
+    height: 60,
+    width: 298,
+    borderRadius: 10,
+    elevation: 2,
+    shadowColor: '#000000',
+  },
+  button: {
+
+  },
+});
 
 export default RecordScreen;
