@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Text,
   TextInput,
@@ -9,10 +9,26 @@ import {
 } from "react-native";
 import { ServerService } from "../services/ServerService";
 import { styles } from "../styles/HomeStyle"
+import { LoadCustomFonts } from "../font.config";
+
 
 const HomeScreen = ({ navigation }) => {
   const [baseUrl, setBaseUrl] = useState("");
   const [port, setPort] = useState("");
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  useEffect(() => {
+    const loadAsyncData = async () => {
+      await LoadCustomFonts();
+      setFontsLoaded(true);
+    };
+
+    loadAsyncData();
+  }, []);
+
+  if (!fontsLoaded) {
+    return null; // You can show a loading screen here
+  }
 
   const connection = async () => {
     try {
