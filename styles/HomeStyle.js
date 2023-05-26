@@ -19,9 +19,13 @@ export const styles = StyleSheet.create({
   title: {
     fontSize: 47,
     fontWeight: '900',
+    fontFamily: 'Montserrat-Bold',
+
   },
   label: {
     fontSize: 16,
+    fontFamily: 'Montserrat-Regular',
+
   },
   form: {
     backgroundColor: 'white',
@@ -34,13 +38,14 @@ export const styles = StyleSheet.create({
   },
   inputlabel: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: 'Montserrat-Medium',
   },
   input: {
     fontSize: 25,
     paddingVertical: 10,
     color: '#E0DFE0',
-    fontWeight: '700',
+    fontFamily: 'Montserrat-SemiBold',
+
   },
   submit: {
     marginTop: -20,
@@ -58,11 +63,12 @@ export const styles = StyleSheet.create({
     shadowColor: '#000000',
   },
   submitTitle: {
-    fontWeight: '900',
+    fontFamily: 'Montserrat-Bold',
     fontSize: 20,
   },
   submitlabel: {
     fontSize: 10,
+    fontFamily: 'Montserrat-Regular',
   },
   separator: {
     width: 270,
