@@ -1,7 +1,7 @@
 import * as Font from 'expo-font';
-import { FontConst } from './constants/FontsConst';
+import { FontsConst } from './constants/FontsConst';
 
 
 export const LoadCustomFonts = async () => {
-  await Font.loadAsync(FontConst);
+  await Font.loadAsync(FontsConst);
 };
