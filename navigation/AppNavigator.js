@@ -24,6 +24,7 @@ export const AppNavigator = () => {
 
         <Tab.Screen name='Record' component={RecordScreen}
               options={{
+                headerShown:false,
                 tabBarLabel: () => null,
                 tabBarIcon: () => (
                   <FontAwesome name='microphone' size={24} color="black"/>
@@ -32,6 +33,7 @@ export const AppNavigator = () => {
         />
         <Tab.Screen name='Rave' component={RaveScreen} 
               options={{
+                headerShown:false,
                 tabBarLabel: () => null,
                 tabBarIcon: () => (
                   <Feather name="headphones" size={24} color="black" />
