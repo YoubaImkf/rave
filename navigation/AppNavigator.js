@@ -23,12 +23,15 @@ export const AppNavigator = () => {
         />
 
         <Tab.Screen name='Record' component={RecordScreen}
-              options={{
-                headerShown:false,
-                tabBarLabel: () => null,
-                tabBarIcon: () => (
-                  <FontAwesome name='microphone' size={24} color="black"/>
-                ),
+              options={
+                {
+                  tabBarStyle: {backgroundColor: '#8BD0FC'},
+                  tabBarIconStyle: {color: 'white'},
+                  headerShown:false,
+                  tabBarLabel: () => null,
+                  tabBarIcon: () => (
+                    <FontAwesome name='microphone' size={24} color="black"/>
+                  ),
             }} 
         />
         <Tab.Screen name='Rave' component={RaveScreen} 
