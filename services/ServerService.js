@@ -1,7 +1,4 @@
-// import React from "react";
-// import { View, Text } from "react-native/types";
 import axios from "axios";
-
 
 export const ServerService = {
 
@@ -18,8 +15,4 @@ export const ServerService = {
             throw new Error('Connection Failed');
         }
     }
-
-    
-
-    
 };
