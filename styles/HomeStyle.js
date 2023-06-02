@@ -25,7 +25,6 @@ export const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontFamily: 'Montserrat-Regular',
-
   },
   form: {
     backgroundColor: 'white',
