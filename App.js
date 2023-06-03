@@ -1,23 +1,17 @@
-import { StyleSheet, Text, View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { AppNavigator } from './navigation/AppNavigator'
-import { LoadCustomFonts } from './font.config';
+import { NavigationContainer } from "@react-navigation/native";
+import { AppNavigator } from "./navigation/AppNavigator";
+import { LoadCustomFonts } from "./font.config";
+import { Provider } from "react-redux"; // Provide the Redux Store to React
+import { store } from "./store";
 
 LoadCustomFonts();
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <AppNavigator/>
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <AppNavigator />
+      </NavigationContainer>
+    </Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#25292e',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
