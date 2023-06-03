@@ -1,6 +1,6 @@
 # Project Rave🎙️
 
-The aim of this project is to develop a stamp transfer application in ReactNative using [expo](https://docs.expo.dev/). 
+The aim of this project is to develop a stamp transfer application in React-Native using [expo](https://docs.expo.dev/) and [jsdoc](https://jsdoc.app/index.html) for commenting structure. 
 Stamp transfer will be performed by a neural network, the RAVE model developed by Antoine Caillon at ircam. 
 
 You can find a demonstration very similar to this application at https://caillonantoine.github.io/ravejs/.
