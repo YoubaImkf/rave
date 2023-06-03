@@ -10,13 +10,22 @@ import React, { useState, useEffect } from "react";
 import { AudioLogic } from "../utils/AudioLogic";
 import { Entypo, MaterialIcons, AntDesign, Ionicons } from "@expo/vector-icons";
 import { styles } from "../styles/RecordStyle";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  setIsRecording,
+  setSavedAudios,
+  setIsPlaying,
+  setLastRecordUri,
+} from "../slices/recordSlice";
 
 const RecordScreen = ({ navigation }) => {
   const [recording, setRecording] = useState(null);
-  const [isRecording, setIsRecording] = useState(false);
-  const [savedAudios, setSavedAudios] = useState([]);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [lastRecordUri, setLastRecordUri] = useState("");
+  const isRecording = useSelector((state) => state.record.isRecording);
+  const savedAudios = useSelector((state) => state.record.savedAudios);
+  const isPlaying = useSelector((state) => state.record.isPlaying);
+  const lastRecordUri = useSelector((state) => state.record.lastRecordUri);
+
+  const dispatch = useDispatch();
 
   const handleRecordingToggle = async () => {
     if (isRecording) {
@@ -28,30 +37,42 @@ const RecordScreen = ({ navigation }) => {
     }
   };
 
+  /**
+   * Handles the start recording button click event.
+   * @async
+   */
   const handleStartRecording = async () => {
     try {
       const newRecording = await AudioLogic.startRecording();
       setRecording(newRecording);
-      setIsRecording(true);
+      dispatch(setIsRecording(true));
     } catch (error) {
       console.error("Failed to start recording", error);
     }
   };
 
+  /**
+   * Handles the stop recording button click event.
+   * @async
+   */
   const handleStopRecording = async () => {
     try {
       if (recording) {
         const recordingUri = await AudioLogic.stopRecording(recording);
         console.log("Recording stopped. URI:", recordingUri);
         setRecording(null);
-        setIsRecording(false);
-        setLastRecordUri(recordingUri);
+        dispatch(setIsRecording(false));
+        dispatch(setLastRecordUri(recordingUri));
       }
     } catch (error) {
       console.error("Failed to stop recording", error);
     }
   };
 
+  /**
+   * Saves the recording to the audio list.
+   * @async
+   */
   const saveRecording = async () => {
     try {
       const savedRecording = await AudioLogic.saveAudio(lastRecordUri);
@@ -62,6 +83,10 @@ const RecordScreen = ({ navigation }) => {
     }
   };
 
+  /**
+   * Deletes the last recorded audio.
+   * @async
+   */
   const deleteLastRecord = async () => {
     try {
       if (lastRecordUri) {
@@ -69,7 +94,7 @@ const RecordScreen = ({ navigation }) => {
           lastRecordUri.lastIndexOf("/") + 1
         );
         await AudioLogic.deleteAudio(fileName);
-        setLastRecordUri("");
+        dispatch(setLastRecordUri(""));
         console.log("Deleted audio:", fileName);
       } else {
         console.log("No audio to delete.");
@@ -79,12 +104,17 @@ const RecordScreen = ({ navigation }) => {
     }
   };
 
+  /**
+   * Deletes a specific audio file.
+   * @async
+   * @param {string} fileName - The name of the audio file to delete.
+   */
   const deleteSpecificAudio = async (fileName) => {
     try {
       const deletedFileName = await AudioLogic.deleteAudio(fileName);
 
       if (deletedFileName) {
-        setSavedAudios((prevAudios) => {
+        dispatch((prevAudios) => {
           const updatedAudios = prevAudios.filter(
             (audio) => audio.fileName !== deletedFileName
           );
@@ -102,6 +132,11 @@ const RecordScreen = ({ navigation }) => {
     }
   };
 
+  /**
+   * Handles the play/pause audio button click event.
+   * @async
+   * @param {string} recordingUri - The URI of the audio to play/pause.
+   */
   const handlePlayAudio = async (recordingUri) => {
     try {
       if (isPlaying) {
@@ -111,12 +146,16 @@ const RecordScreen = ({ navigation }) => {
         console.log("playing audio ...");
         await AudioLogic.playAudio(recordingUri);
       }
-      setIsPlaying(!isPlaying);
+      dispatch(setIsPlaying(!isPlaying));
     } catch (error) {
       console.error("Failed to play/pause the audio", error);
     }
   };
 
+  /**
+   * Plays the recorded audio.
+   * @async
+   */
   const playSoundBack = async () => {
     try {
       if (lastRecordUri !== "") {
@@ -126,9 +165,9 @@ const RecordScreen = ({ navigation }) => {
         } else {
           console.log("playing back record ...");
           await AudioLogic.playAudio(lastRecordUri);
-          setIsPlaying(true);
+          dispatch(setIsPlaying(true));
         }
-        setIsPlaying(false);
+        dispatch(setIsPlaying(false));
       } else {
         ToastAndroid.show(
           "Please start a record before playing back",
@@ -141,10 +180,14 @@ const RecordScreen = ({ navigation }) => {
     }
   };
 
+  /**
+   * Retrieves the saved audio files.
+   * @async
+   */
   const _retrieveSavedAudios = async () => {
     try {
       const audios = await AudioLogic.getSavedAudio();
-      setSavedAudios(audios);
+      dispatch(setSavedAudios(audios));
     } catch (error) {
       console.error("Failed to retrieve audios", error);
     }
@@ -160,6 +203,10 @@ const RecordScreen = ({ navigation }) => {
   //   }
   // };
 
+  /**
+   * Retrieves the saved audio files.
+   * @async
+   */
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
       _retrieveSavedAudios();

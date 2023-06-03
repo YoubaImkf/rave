@@ -2,10 +2,12 @@ import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Implémentez la logique pour démarrer et arrêter l'enregistrement,
-// ainsi que pour jouer et mettre en pause l'enregistrement.
-
 export const AudioLogic = {
+  /**
+   * Gets the recording permission from the user.
+   * @async
+   * @returns {Promise<boolean>} A promise resolved with the granted permission status.
+   */
   getPermission: async () => {
     try {
       const permission = await Audio.requestPermissionsAsync();
@@ -17,6 +19,11 @@ export const AudioLogic = {
     }
   },
 
+  /**
+   * Starts recording audio.
+   * @async
+   * @returns {Promise<Audio.Recording|null>} A promise resolved with the recording object or null if failed.
+   */
   startRecording: async () => {
     try {
       const granted = await AudioLogic.getPermission();
@@ -37,6 +44,12 @@ export const AudioLogic = {
     }
   },
 
+  /**
+   * Stops recording audio.
+   * @async
+   * @param {Audio.Recording} recording - The recording object to stop.
+   * @returns {Promise<string|null>} A promise resolved with the recording URI or null if failed.
+   */
   stopRecording: async (recording) => {
     try {
       if (recording) {
@@ -50,6 +63,12 @@ export const AudioLogic = {
     }
   },
 
+  /**
+   * Plays audio from a given URI.
+   * @async
+   * @param {string} uri - The URI of the audio to play.
+   * @returns {Promise<void>} A promise resolved when audio playback is completed or an error occurs.
+   */
   playAudio: async (uri) => {
     try {
       soundObject = new Audio.Sound();
@@ -60,6 +79,11 @@ export const AudioLogic = {
     }
   },
 
+  /**
+   * Pauses audio playback.
+   * @async
+   * @returns {Promise<void>} A promise resolved when audio playback is paused or an error occurs.
+   */
   pauseAudio: async () => {
     try {
       if (soundObject) {
@@ -70,6 +94,12 @@ export const AudioLogic = {
     }
   },
 
+  /**
+   * Saves the recorded audio.
+   * @async
+   * @param {string} recordingUri - The URI of the recorded audio to save.
+   * @returns {Promise<string|null>} A promise resolved with the new path of the saved audio file or null if failed.
+   */
   saveAudio: async (recordingUri) => {
     try {
       const fileName = `recording-${Date.now()}.caf`;
@@ -95,6 +125,12 @@ export const AudioLogic = {
     }
   },
 
+  /**
+   * Deletes the audio file with the given fileName.
+   * @async
+   * @param {string} fileName - The name of the audio file to delete.
+   * @returns {Promise<string|null>} A promise resolved with the deleted file name or null if failed.
+   */
   deleteAudio: async (fileName) => {
     try {
       const filePath = FileSystem.documentDirectory + "recordings/" + fileName;
@@ -128,6 +164,11 @@ export const AudioLogic = {
     }
   },
 
+  /**
+   * Gets the list of saved audio files.
+   * @async
+   * @returns {Promise<Array<Object>>} A promise resolved with the array of saved audio files.
+   */
   getSavedAudio: async () => {
     try {
       const savedAudios = await AsyncStorage.getItem("audioList");
@@ -141,6 +182,11 @@ export const AudioLogic = {
     }
   },
 
+  /**
+   * Clears all the recorded audio files and cache data.
+   * @async
+   * @returns {Promise<void>} A promise resolved when all data is cleared or an error occurs.
+   */
   clearAllData: async () => {
     try {
       // Supprimer tous les fichiers audio du répertoire des enregistrements
