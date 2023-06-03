@@ -10,7 +10,6 @@ const Tab = createBottomTabNavigator();
 export const AppNavigator = () => {
   return (
       <Tab.Navigator >
-        {/* <Icon.Tab.Screen name="microphone"></Icon.Tab.Screen> */}
         <Tab.Screen name='Home' component={HomeScreen}
               options={
                 {
@@ -46,5 +45,3 @@ export const AppNavigator = () => {
       </Tab.Navigator>
   );
 }; 
-
-// export default AppNavigator;
