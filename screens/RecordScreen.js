@@ -112,18 +112,14 @@ const RecordScreen = ({ navigation }) => {
   const deleteSpecificAudio = async (fileName) => {
     try {
       const deletedFileName = await AudioLogic.deleteAudio(fileName);
-
+  
       if (deletedFileName) {
-        dispatch((prevAudios) => {
-          const updatedAudios = prevAudios.filter(
-            (audio) => audio.fileName !== deletedFileName
-          );
-          return updatedAudios;
-        });
-
-        console.log(
-          `The audio ${deletedFileName} has been deleted successfully.`
+        const updatedAudios = savedAudios.filter(
+          (audio) => audio.fileName !== deletedFileName
         );
+        dispatch(setSavedAudios(updatedAudios));
+  
+        console.log(`The audio ${deletedFileName} has been deleted successfully.`);
       } else {
         console.log(`Failed to delete the audio ${fileName}.`);
       }
@@ -131,6 +127,7 @@ const RecordScreen = ({ navigation }) => {
       console.error(`Failed to delete the audio ${fileName}.`, error);
     }
   };
+  
 
   /**
    * Handles the play/pause audio button click event.
