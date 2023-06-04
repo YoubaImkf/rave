@@ -62,7 +62,6 @@ export const styles = StyleSheet.create({
     width: 40,
     height: 40,
     backgroundColor: "#E71919",
-    borderRadius: 5,
   },
   recordButton: {
     justifyContent: "center",

@@ -44,6 +44,10 @@ const RecordScreen = ({ navigation }) => {
   const handleStartRecording = async () => {
     try {
       const newRecording = await AudioLogic.startRecording();
+      ToastAndroid.show(
+        "it's recording",
+        ToastAndroid.SHORT
+      );
       setRecording(newRecording);
       dispatch(setIsRecording(true));
     } catch (error) {
@@ -59,6 +63,10 @@ const RecordScreen = ({ navigation }) => {
     try {
       if (recording) {
         const recordingUri = await AudioLogic.stopRecording(recording);
+        ToastAndroid.show(
+          "recording stop",
+          ToastAndroid.SHORT
+        );
         console.log("Recording stopped. URI:", recordingUri);
         setRecording(null);
         dispatch(setIsRecording(false));
@@ -245,11 +253,11 @@ const RecordScreen = ({ navigation }) => {
         />
       </View>
       <View style={styles.recordContainer}>
-        <TouchableOpacity
+        <TouchableOpacity 
           style={styles.recordButton}
           onPress={handleRecordingToggle}
         >
-          <View style={styles.square}></View>
+          <View style={[styles.square, { borderRadius: isRecording ? 50 : 5 }]}></View>
         </TouchableOpacity>
       </View>
 
