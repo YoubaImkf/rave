@@ -36,6 +36,7 @@ export const AppNavigator = () => {
         <Tab.Screen name='Rave' component={RaveScreen} 
               options={{
                 headerShown:false,
+                tabBarStyle: {backgroundColor: '#FCE76C'},
                 tabBarLabel: () => null,
                 tabBarIcon: () => (
                   <Feather name="headphones" size={24} color="black" />

@@ -19,11 +19,14 @@ import {
 } from "../slices/recordSlice";
 
 const RecordScreen = ({ navigation }) => {
-  const [recording, setRecording] = useState(null);
+  const [recording, setRecording] = useState(null); // To store the object record
+  const [currentAudioUri, setCurrentAudioUri] = useState(null); // Correctly handles pausing when playing other audio
+
   const isRecording = useSelector((state) => state.record.isRecording);
   const savedAudios = useSelector((state) => state.record.savedAudios);
   const isPlaying = useSelector((state) => state.record.isPlaying);
   const lastRecordUri = useSelector((state) => state.record.lastRecordUri);
+
 
   const dispatch = useDispatch();
 
@@ -104,6 +107,10 @@ const RecordScreen = ({ navigation }) => {
         await AudioLogic.deleteAudio(fileName);
         dispatch(setLastRecordUri(""));
         console.log("Deleted audio:", fileName);
+        ToastAndroid.show(
+          "The record has been deleted successfully.",
+          ToastAndroid.SHORT
+        );
       } else {
         console.log("No audio to delete.");
       }
@@ -126,7 +133,10 @@ const RecordScreen = ({ navigation }) => {
           (audio) => audio.fileName !== deletedFileName
         );
         dispatch(setSavedAudios(updatedAudios));
-  
+        ToastAndroid.show(
+          "Audio has been deleted successfully.",
+          ToastAndroid.SHORT
+        );
         console.log(`The audio ${deletedFileName} has been deleted successfully.`);
       } else {
         console.log(`Failed to delete the audio ${fileName}.`);
@@ -144,12 +154,19 @@ const RecordScreen = ({ navigation }) => {
    */
   const handlePlayAudio = async (recordingUri) => {
     try {
-      if (isPlaying) {
-        console.log("pause audio ...");
+      if (isPlaying && currentAudioUri === recordingUri) {
         await AudioLogic.pauseAudio();
+        console.log("Pause audio ...");
+        dispatch(setIsPlaying(false));
       } else {
-        console.log("playing audio ...");
+        if (isPlaying) {
+          await AudioLogic.pauseAudio();
+          console.log("Pause previous audio ...");
+        }
         await AudioLogic.playAudio(recordingUri);
+        console.log("Playing audio ...");
+        setCurrentAudioUri(recordingUri);
+        dispatch(setIsPlaying(true));
       }
       dispatch(setIsPlaying(!isPlaying));
     } catch (error) {
@@ -170,6 +187,10 @@ const RecordScreen = ({ navigation }) => {
         } else {
           console.log("playing back record ...");
           await AudioLogic.playAudio(lastRecordUri);
+          ToastAndroid.show(
+            "Playing back the record",
+            ToastAndroid.SHORT
+          );
           dispatch(setIsPlaying(true));
         }
         dispatch(setIsPlaying(false));
