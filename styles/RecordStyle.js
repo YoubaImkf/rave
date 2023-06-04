@@ -76,7 +76,7 @@ export const styles = StyleSheet.create({
     justifyContent: "space-around",
     position: "absolute",
     marginBottom: 0,
-    bottom: 10,
+    bottom: 40,
     backgroundColor: "#FFFFFF",
     flexDirection: "row",
     height: 60,
@@ -86,5 +86,4 @@ export const styles = StyleSheet.create({
     shadowColor: "#000000",
     alignSelf: "center",
   },
-  button: {},
 });
