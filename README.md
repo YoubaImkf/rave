@@ -8,11 +8,6 @@ You can find a demonstration very similar to this application at https://caillon
 
 ## 🎉 Getting started 
 
-#### VIEWS
-![connection](./assets/readme_assets/connection.jpg)
-![record](./assets/readme_assets/record.jpg)
-![rave](./assets/readme_assets/rave.jpg)
-
 ### The prerequisites
 
 You must have node with npm installed.
@@ -48,3 +43,7 @@ npx expo start  # live reloading mode
 ```
 ___
 
+#### VIEWS
+![connection](./assets/readme_assets/connection.jpg)
+![record](./assets/readme_assets/record.jpg)
+![rave](./assets/readme_assets/rave.jpg)
