@@ -38,19 +38,24 @@ const RaveScreen = () => {
   const handleSendClip = async () => {
     setLoading(true);
     const file = selectedAudio;
-    await ServerService.uploadAudio(file);
-    await handleDownloadAndSaveAudio();
-
-    setTransformedAudioPath(transformedAudioPath);
-    setLoading(false);
+    try {
+      await ServerService.uploadAudio(file);
+      const fileUri = await handleDownloadAndSaveAudio();
+      setTransformedAudioPath(fileUri);
+      setLoading(false);
+    } catch (error) {
+      console.error('Failed to send clip:', error);
+      setLoading(false);
+    }
   };
 
   const handleDownloadAndSaveAudio = async () => {
     try {
       const fileUri = await ServerService.downloadAndSaveAudio();
-      setTransformedAudioPath(fileUri);
+      return fileUri;
     } catch (error) {
       console.error('Failed to download and save audio:', error);
+      throw error;
     }
   };
 
@@ -149,6 +154,8 @@ const RaveScreen = () => {
         initialLayout={{ width: 300 }}
         renderTabBar={renderTabBar}
       />
+      {/*loading asset appear if true */}
+      {loading && <ActivityIndicator size="large" color="#676B67" />}
 
       <View style={styles.playButtonsContainer}>
 
@@ -167,7 +174,6 @@ const RaveScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {loading && <ActivityIndicator size="large" color="#8DFC8B" />}
     </View>
   );
 };

@@ -18,39 +18,46 @@ export const ServerService = {
     },
 
     uploadAudio: async (file) => {
-        try{
-            const formData = new FormData();
-            formData.append('file', file);
-            const response = await axios.post('http://192.168.1.22:8000/upload', formData, {
-                headers: {
-                  'Content-Type': 'multipart/form-data',
-                },
-            });
-            if (response.status === 200) {
-                console.log('Transformation successful');
-            } else {
-                console.error('Failed to transform audio');
-            }   
-        } catch (error) {
-            throw new Error('Connection Failed');
-        }
-
-    },
-
-    downloadAndSaveAudio: async () => {
         try {
-          const response = await axios.get('http://192.168.1.22:8000/download', {
-            responseType: 'blob', // Set the response type to 'blob' for downloading a file
+          const uploadUrl = `http://192.168.1.22:8000/upload`;
+          const formData = new FormData();
+          formData.append("file", file);
+          const uploadResponse = await axios.post(uploadUrl, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          
+          if (uploadResponse.status !== 200) {
+            throw new Error("Upload Failed");
+          }
+    
+          console.log("Upload successful");
+        } catch (error) {
+          console.error("Upload Failed:", error);
+          throw new Error("Upload Failed");
+        }
+      },
+    
+      downloadAndSaveAudio: async () => {
+        try {
+          const downloadUrl = `http://192.168.1.22:8000/download`;
+          const downloadResponse = await axios.get(downloadUrl, {
+            responseType: "blob",
+          });
+          
+          if (downloadResponse.status !== 200) {
+            throw new Error("Download Failed");
+          }
+    
+          const uri = FileSystem.documentDirectory + "transformed_audio.wav";
+          await FileSystem.writeAsStringAsync(uri, downloadResponse.data, {
+            encoding: FileSystem.EncodingType.Base64,
           });
     
-          const fileUri = `${FileSystem.documentDirectory}music/transformed_audio.wav`;
-          await FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}music`, { intermediates: true }); // Create the 'music' directory if it doesn't exist
-          await FileSystem.writeAsStringAsync(fileUri, response.data, { encoding: FileSystem.EncodingType.Base64 }); // Save the audio file locally
-    
-          return fileUri; // Return the file path
+          console.log("Audio downloaded and saved:", uri);
+          return uri;
         } catch (error) {
-          console.error('Failed to download and save audio:', error);
-          throw error; // Throw the error to handle it in the calling function
+          console.error("Download and Save Failed:", error);
+          throw new Error("Download and Save Failed");
         }
       },
 

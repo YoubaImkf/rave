@@ -14,6 +14,7 @@ export const AppNavigator = () => {
               options={
                 {
                 headerShown:false,
+                tabBarStyle: { display: "none" },
                 tabBarLabel: () => null,
                 tabBarIcon: () => (
                   <MaterialIcons name="login" size={24} color="black" />
